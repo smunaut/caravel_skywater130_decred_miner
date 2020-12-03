@@ -61,10 +61,10 @@ module user_project_wrapper #(
 );
 
     /*--------------------------------------*/
-    /* User project is instantiated  here   */
+    /* Instantiation of decred_top.         */
     /*--------------------------------------*/
 
-    user_proj_example mprj (
+    decred_top mprj (
     `ifdef USE_POWER_PINS
 	.vdda1(vdda1),	// User area 1 3.3V power
 	.vdda2(vdda2),	// User area 2 3.3V power
@@ -75,34 +75,31 @@ module user_project_wrapper #(
 	.vssd1(vssd1),	// User area 1 digital ground
 	.vssd2(vssd2),	// User area 2 digital ground
     `endif
+	// inputs
+	.PLL_INPUT(user_clock2),
+	.EXT_RESET_N_fromHost(io_in[0]),
+	.SCLK_fromHost(io_in[1]),
+	.M1_CLK_IN(io_in[2]),
+	.M1_CLK_SELECT(io_in[3]),
+	.S1_CLK_IN(io_in[4]),
+	.S1_CLK_SELECT(io_in[5]),
+	.SCSN_fromHost(io_in[6]),
+	.MOSI_fromHost(io_in[7]),
+	.MISO_fromClient(io_in[8]),
+	.IRQ_OUT_fromClient(io_in[9]),
+	.ID_fromClient(io_in[10]),
+	.SPI_CLK_RESET_N(io_in[11]),
 
-	// MGMT core clock and reset
-
-    	.wb_clk_i(wb_clk_i),
-    	.wb_rst_i(wb_rst_i),
-
-	// MGMT SoC Wishbone Slave
-
-	.wbs_cyc_i(wbs_cyc_i),
-	.wbs_stb_i(wbs_stb_i),
-	.wbs_we_i(wbs_we_i),
-	.wbs_sel_i(wbs_sel_i),
-	.wbs_adr_i(wbs_adr_i),
-	.wbs_dat_i(wbs_dat_i),
-	.wbs_ack_o(wbs_ack_o),
-	.wbs_dat_o(wbs_dat_o),
-
-	// Logic Analyzer
-
-	.la_data_in(la_data_in),
-	.la_data_out(la_data_out),
-	.la_oen (la_oen),
-
-	// IO Pads
-
-	.io_in (io_in),
-    	.io_out(io_out),
-    	.io_oeb(io_oeb)
+	// outputs
+	.SCSN_toClient(io_out[0]),
+	.SCLK_toClient(io_out[1]),
+	.MOSI_toClient(io_out[2]),
+	.EXT_RESET_N_toClient(io_out[3]),
+	.ID_toHost(io_out[4]),
+	.CLK_LED(io_out[5]),
+	.MISO_toHost(io_out[6]),
+	.HASH_LED(io_out[7]),
+	.IRQ_OUT_toHost(io_out[8])
     );
 
 endmodule	// user_project_wrapper
