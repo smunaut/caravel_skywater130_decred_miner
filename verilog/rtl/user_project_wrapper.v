@@ -77,29 +77,29 @@ module user_project_wrapper #(
     `endif
 	// inputs
 	.PLL_INPUT(user_clock2),
-	.EXT_RESET_N_fromHost(io_in[0]),
-	.SCLK_fromHost(io_in[1]),
-	.M1_CLK_IN(io_in[2]),
-	.M1_CLK_SELECT(io_in[3]),
-	.S1_CLK_IN(io_in[4]),
-	.S1_CLK_SELECT(io_in[5]),
-	.SCSN_fromHost(io_in[6]),
-	.MOSI_fromHost(io_in[7]),
-	.MISO_fromClient(io_in[8]),
-	.IRQ_OUT_fromClient(io_in[9]),
-	.ID_fromClient(io_in[10]),
-	.SPI_CLK_RESET_N(io_in[11]),
+	.EXT_RESET_N_fromHost(analog_io[0]),
+	.SCLK_fromHost(analog_io[1]),
+	.M1_CLK_IN(analog_io[2]),
+	.M1_CLK_SELECT(analog_io[3]),
+	.S1_CLK_IN(analog_io[4]),
+	.S1_CLK_SELECT(analog_io[5]),
+	.SCSN_fromHost(analog_io[6]),
+	.MOSI_fromHost(analog_io[7]),
+	.MISO_fromClient(analog_io[8]),
+	.IRQ_OUT_fromClient(analog_io[9]),
+	.ID_fromClient(analog_io[10]),
+	.SPI_CLK_RESET_N(analog_io[11]),
 
 	// outputs
-	.SCSN_toClient(io_out[0]),
-	.SCLK_toClient(io_out[1]),
-	.MOSI_toClient(io_out[2]),
-	.EXT_RESET_N_toClient(io_out[3]),
-	.ID_toHost(io_out[4]),
-	.CLK_LED(io_out[5]),
-	.MISO_toHost(io_out[6]),
-	.HASH_LED(io_out[7]),
-	.IRQ_OUT_toHost(io_out[8])
+	.SCSN_toClient(analog_io[12]),
+	.SCLK_toClient(analog_io[13]),
+	.MOSI_toClient(analog_io[14]),
+	.EXT_RESET_N_toClient(analog_io[15]),
+	.ID_toHost(analog_io[16]),
+	.CLK_LED(analog_io[17]),
+	.MISO_toHost(analog_io[18]),
+	.HASH_LED(analog_io[18]),
+	.IRQ_OUT_toHost(analog_io[19])
     );
 
 endmodule	// user_project_wrapper
