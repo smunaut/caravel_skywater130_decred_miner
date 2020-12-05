@@ -15,10 +15,10 @@ set ::env(FP_SIZING) absolute
 set ::env(DIE_AREA) "0 0 2920 3520"
 
 # 8 macro
-set ::env(CLOCK_PERIOD) "20.000"
+set ::env(CLOCK_PERIOD) "15.000"
 #default is 50
-set ::env(FP_CORE_UTIL) "50"
-set ::env(PL_TARGET_DENSITY) 0.50
+set ::env(FP_CORE_UTIL) "55"
+set ::env(PL_TARGET_DENSITY) 0.58
 set ::env(SYNTH_STRATEGY) "1"
 set ::env(CELL_PAD) "4"
 #default is 0.15
