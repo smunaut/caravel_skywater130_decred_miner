@@ -6,9 +6,9 @@ module regBank #(
   parameter ADDR_WIDTH=8,
   parameter NUM_OF_MACROS=2
 )(
-  input  wire                  iCLK,
+  input  wire                  SPI_CLK,
   input  wire                  RST,
-  input  wire						       MAIN_CLOCK,
+  input  wire						       M1_CLK,
   input  wire [ADDR_WIDTH-1:0] address,
   input  wire [DATA_WIDTH-1:0] data_in,
   input  wire                  read_strobe,
@@ -26,20 +26,18 @@ module regBank #(
 
   // //////////////////////////////////////////////////////
   // reg array
-  // reg [DATA_WIDTH-1:0] registers [2**ADDR_WIDTH-1:0];
-  reg [DATA_WIDTH-1:0] registers [REGISTERS-1:0];
 
-  wire	[7 :0]	macro_data_writeout;
-  wire	[7 :0]	macro_data_readback;
+  reg  [DATA_WIDTH-1:0] registers [REGISTERS-1:0];
 
-  wire	[3 :0] threadCount [NUM_OF_MACROS-1:0];
+  reg  [7: 0] macro_data_read_rs[1:0];
+  wire [3 :0] threadCount [NUM_OF_MACROS-1:0];
 
   reg [31:0] perf_counter;
-  always @(posedge MAIN_CLOCK)
+  always @(posedge M1_CLK)
     if (registers[3][2] == 1'b1) 
 	    perf_counter <= perf_counter + 1'b1;
 
-  always @(posedge iCLK) begin : REG_WRITE_BLOCK
+  always @(posedge SPI_CLK) begin : REG_WRITE_BLOCK
     integer i;
     if(RST) begin 
       for (i = 0; i < REGISTERS; i = i + 1) begin
@@ -53,7 +51,7 @@ module regBank #(
     end
   end
 
-  always @(posedge iCLK) begin
+  always @(posedge SPI_CLK) begin
     if (read_strobe) begin
 		if (address[7:0] == 8'h02) begin
 			// interrupt active register
@@ -83,7 +81,7 @@ module regBank #(
         data_out <= registers[address[6:0]];
       end
 	   else begin
-			data_out <= macro_data_readback;
+			data_out <= macro_data_read_rs[1];
 	    end
     end
   end
@@ -108,40 +106,70 @@ module regBank #(
 
   assign spi_addr = registers[4][6:0];
 
-  assign macro_data_writeout = registers[1];
-
-`ifdef BYPASS_THIS_ASIC
-  assign LED_out = 1;
-  assign ID_out = 1;
-`else
   assign LED_out = registers[3][3];
   assign ID_out = registers[3][5];
-`endif
 
-  // sync HASH_start to MAIN_CLOCK
-  reg [1:0]		hash_en_rs;
-  wire 			HASH_start;
-  always @ (posedge MAIN_CLOCK)
+  assign hash_clock_reset = registers[3][4];
+
+  // //////////////////////////////////////////////////////
+  // resync - signals to hash_macro 
+
+  reg [1:0] hash_en_rs;
+  wire      HASH_start;
+
+  always @ (posedge M1_CLK)
   begin
     hash_en_rs <= {hash_en_rs[0], registers[3][0]};
   end
   assign HASH_start = hash_en_rs[1];
 
-  assign hash_clock_reset = registers[3][4];
+  reg		[NUM_OF_MACROS - 1: 0]	wr_select_rs[1:0];
+  always @ (posedge M1_CLK)
+  begin
+    wr_select_rs[1] <= wr_select_rs[0];
+    wr_select_rs[0] <= registers[5][NUM_OF_MACROS - 1: 0];
+  end
+
+  reg		[7: 0]	macro_data_write_rs[1:0];
+  always @ (posedge M1_CLK)
+  begin
+    macro_data_write_rs[1] <= macro_data_write_rs[0];
+    macro_data_write_rs[0] <= registers[1];
+  end
+
+  reg		[NUM_OF_MACROS - 1: 0]	rd_select_rs[1:0];
+  always @ (posedge M1_CLK)
+  begin
+    rd_select_rs[1] <= rd_select_rs[0];
+    rd_select_rs[0] <= registers[2][NUM_OF_MACROS - 1: 0];
+  end
+
+  reg		[5: 0]	macro_addr_rs[1:0];
+  always @ (posedge M1_CLK)
+  begin
+    macro_addr_rs[1] <= macro_addr_rs[0];
+    macro_addr_rs[0] <= registers[0][5:0];
+  end
 
   // //////////////////////////////////////////////////////
-  // interrupt logic
+  // resync - signals from hash_macro 
 
   wire	[NUM_OF_MACROS - 1: 0]	macro_interrupts;
   reg		[NUM_OF_MACROS - 1: 0]	macro_rs[1:0];
 
-  // resync interrupts to spi clock
-  always @(posedge iCLK) begin
+  always @(posedge SPI_CLK) begin
     macro_rs[1] <= macro_rs[0];
-	 macro_rs[0] <= macro_interrupts;
+    macro_rs[0] <= macro_interrupts;
   end
 
   assign interrupt_out = |macro_rs[1];
+
+  wire [7: 0] macro_data_readback;
+
+  always @(posedge SPI_CLK) begin
+    macro_data_read_rs[1] <= macro_data_read_rs[0];
+    macro_data_read_rs[0] <= macro_data_readback;
+  end
 
   // //////////////////////////////////////////////////////
   // hash macro interface
@@ -154,16 +182,16 @@ module regBank #(
     blake256r14_core_block hash_macro (
 `endif
 					  
-						.CLK(MAIN_CLOCK), 
+						.CLK(M1_CLK), 
 						.HASH_EN(HASH_start), 
 
-						.MACRO_WR_SELECT(registers[5][i]),
-						.DATA_IN(macro_data_writeout),
+						.MACRO_WR_SELECT(wr_select_rs[1][i]),
+						.DATA_IN(macro_data_write_rs[1]),
 
-						.MACRO_RD_SELECT(registers[2][i]),
-						.ADDR_IN(registers[0][5:0]),
+						.MACRO_RD_SELECT(rd_select_rs[1][i]),
+						.ADDR_IN(macro_addr_rs[1]),
 
-						.THREAD_COUNT(threadCount[i]), // only use [0]
+						.THREAD_COUNT(threadCount[i]), // one is used == [0]
 
 						.DATA_AVAILABLE(macro_interrupts[i]),
 						.DATA_OUT(macro_data_readback)

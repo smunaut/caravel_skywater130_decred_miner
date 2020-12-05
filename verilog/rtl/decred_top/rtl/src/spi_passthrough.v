@@ -3,7 +3,7 @@
 `include "decred_defines.v"
 
 module spi_passthrough (
-  input  wire  iCLK,
+  input  wire  SPI_CLK,
   input  wire  RSTin,
   input  wire	 ID_in, 
   input	 wire	 IRQ_in,
@@ -40,7 +40,7 @@ module spi_passthrough (
   reg [1:0] id_resync;
   reg [1:0] reset_resync;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (rst_wire) begin
       id_resync <= 0;
     end
@@ -50,7 +50,7 @@ module spi_passthrough (
 
   reg [1:0] irq_resync;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (rst_wire) begin
       irq_resync <= 0;
     end
@@ -58,13 +58,9 @@ module spi_passthrough (
       irq_resync <= {irq_resync[0], IRQ_in};
     end
 
-`ifdef BYPASS_THIS_ASIC
-  assign IRQout = IRQ_in;
-`else
   assign IRQout = irq_resync[1] | irq_local;
-`endif
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     begin
       reset_resync <= {reset_resync[0], !RSTin};
     end
@@ -95,7 +91,7 @@ module spi_passthrough (
   assign unique_address_match = (currentSPIAddr == setSPIAddr) ? 1'b1 : 1'b0;
   assign id_active = id_resync[1];
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (rst_wire) begin
       local_address_select <= 0;
     end
@@ -109,11 +105,7 @@ module spi_passthrough (
       end
     end
 
-`ifdef BYPASS_THIS_ASIC
-  assign MISOout = MISOin;
-`else
   assign MISOout = (local_address_select) ? miso_local : MISOin;
-`endif
 
   // //////////////////////////////////////////////////////
   // Write enable mask
@@ -123,7 +115,7 @@ module spi_passthrough (
 
   assign global_address_match = (currentSPIAddr == 7'b1111111) ? 1'b1 : 1'b0;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (rst_wire) begin
       global_address_select <= 0;
     end

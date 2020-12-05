@@ -1293,15 +1293,9 @@ module blake256r14_core_nonblock #(
 
   assign data_in_bus = DATA_IN;
 
-  reg	[1:0]	select_ws;
   always @ (posedge CLK)
   begin
-    select_ws <= {select_ws[0], MACRO_WR_SELECT};
-  end
-
-  always @ (posedge CLK)
-  begin
-    if (select_ws[1])
+    if (MACRO_WR_SELECT)
 	 begin
       registers[ADDR_IN] <= data_in_bus;
 	 end
@@ -1328,24 +1322,12 @@ module blake256r14_core_nonblock #(
   // outbound reg block
   //----------------------------------------------------------------
 
-  reg	[1:0]	select_rs;
-  always @ (posedge CLK)
-  begin
-    if (HASH_EN == 0)
-	 begin
-      select_rs <= 2'b0;
-	 end else
-    begin
-      select_rs <= {select_rs[0], MACRO_RD_SELECT};
-    end
-  end
-
   reg solution_ready;
   assign DATA_AVAILABLE = solution_ready;
 
   always @ (posedge CLK)
   begin
-    if ((HASH_EN == 0) || (select_rs[1]))
+    if ((HASH_EN == 0) || (MACRO_RD_SELECT))
 	 begin
       solution_ready <= 0;
 	 end else
@@ -1358,7 +1340,7 @@ module blake256r14_core_nonblock #(
   reg				output_enable;
 
   reg  [7:0]	data_output_bus;
-  assign DATA_OUT = (select_rs[1]) ? data_output_bus : 8'bZ;
+  assign DATA_OUT = (MACRO_RD_SELECT) ? data_output_bus : 8'bZ;
 
   always @ (*)
   begin

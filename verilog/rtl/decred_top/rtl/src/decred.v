@@ -1,12 +1,7 @@
 `timescale 1ns / 1ps
-
 `include "decred_defines.v"
 
-`ifdef USE_NONBLOCKING_HASH_MACRO
-module decred_nonblock (
-`else
-module decred_block (
-`endif
+module decred (
   input  wire  EXT_RESET_N_fromHost,
   input  wire  SCLK_fromHost,
   input  wire  M1_CLK,
@@ -66,7 +61,7 @@ module decred_block (
   wire [7:0] miso_data_in;
 
   spi spiBlock(
-    .iCLK(SPI_CLK),
+    .SPI_CLK(SPI_CLK),
     .RST(rst_local),
     .SCLK(sclk_local),
     .SCSN(scsn_local),
@@ -83,8 +78,9 @@ module decred_block (
 
   // //////////////////////////////////////////////////////
   // SPI pass through
+
   spi_passthrough spiPassBlock(
-    .iCLK(SPI_CLK),
+    .SPI_CLK(SPI_CLK),
     .RSTin(EXT_RESET_N_fromHost),
     .ID_in(ID_fromClient),
     .IRQ_in(IRQ_OUT_fromClient),
@@ -121,7 +117,7 @@ module decred_block (
   wire        regFile_write_strobe;
 
   addressalyzer addressalyzerBlock (
-    .iCLK(SPI_CLK),
+    .SPI_CLK(SPI_CLK),
     .RST(rst_local),
 
     .start_of_transfer(start_of_transfer),
@@ -140,12 +136,11 @@ module decred_block (
   // //////////////////////////////////////////////////////
   // Interface to regfile
 
-
-  regBank #(.NUM_OF_MACROS(8))
+  regBank #(.NUM_OF_MACROS(`NUMBER_OF_MACROS))
   regBankBlock (
-    .iCLK(SPI_CLK),
+    .SPI_CLK(SPI_CLK),
     .RST(rst_local),
-    .MAIN_CLOCK(M1_CLK),
+    .M1_CLK(M1_CLK),
     .address(address[7:0]),
     .data_in(mosi_data_out),
     .read_strobe(regFile_read_strobe),

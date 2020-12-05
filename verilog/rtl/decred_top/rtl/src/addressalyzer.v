@@ -2,7 +2,7 @@
 
 module addressalyzer (
   input  wire  RST,
-  input  wire  iCLK,
+  input  wire  SPI_CLK,
 
   input        start_of_transfer,
   input        end_of_transfer,
@@ -35,7 +35,7 @@ module addressalyzer (
   assign read_cycle = address_local[15];
   assign ram_address_out = address_local[14:0];
 
-  always @ (posedge iCLK) begin 
+  always @ (posedge SPI_CLK) begin 
     if(RST) begin 
       address_local  <= 0;
       address_strobe <= 0;
@@ -138,7 +138,7 @@ module addressalyzer (
   assign ram_read_strobe = rdwr_read_en;
   assign ram_write_strobe = rdwr_write_en;
 
-  always @ (posedge iCLK) begin 
+  always @ (posedge SPI_CLK) begin 
     if(RST) begin 
       rdwr_state    <= RDWR_IDLE;
       rdwr_read_en  <= 0;

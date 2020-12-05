@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module spi (
-  input  wire  iCLK,
+  input  wire  SPI_CLK,
   input  wire  RST,
   input  wire  SCLK,
   input  wire  SCSN,
@@ -30,7 +30,7 @@ module spi (
   reg  rising_sclk;
   reg  falling_sclk;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST) begin
       sclk_resync <= 0;
       sclk_edge   <= 'h0;
@@ -49,7 +49,7 @@ module spi (
   assign scsn_rs = scsn_resync[1];
   assign mosi_rs = mosi_resync[1];
   
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST) begin
       rising_sclk  <= 0;
 	  falling_sclk <= 0;
@@ -69,7 +69,7 @@ module spi (
   reg [2:0] bitcount;
   reg       byteCountStrobe;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST) begin
       bitcount <= 0;
       byteCountStrobe <= 0;
@@ -90,7 +90,7 @@ module spi (
 
   reg [7:0] mosi_data_shift_reg;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST) begin
       mosi_data_shift_reg <= 0;
     end
@@ -98,7 +98,7 @@ module spi (
       mosi_data_shift_reg <= {mosi_data_shift_reg[6:0], mosi_rs};
     end
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST) begin
       mosi_data_out <= 0;
     end
@@ -106,7 +106,7 @@ module spi (
       mosi_data_out <= mosi_data_shift_reg;
     end
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST)
       mosi_data_ready <= 0;
     else
@@ -117,13 +117,13 @@ module spi (
 
   reg [7:0] miso_data_shift_reg;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST)
       miso_data_request <= 0;
     else
       miso_data_request <= byteCountStrobe;
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST) begin
       miso_data_shift_reg <= 0;
 	end
@@ -133,7 +133,7 @@ module spi (
     else if (falling_sclk)
       miso_data_shift_reg <= {miso_data_shift_reg[6:0], 1'b0};
 
-  always @(posedge iCLK)
+  always @(posedge SPI_CLK)
     if (RST)
       MISO <= 0;
     else

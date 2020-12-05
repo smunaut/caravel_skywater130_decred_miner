@@ -29,7 +29,7 @@ module clock_div #(
     assign enable_even = !syncN[0];
 
     // Divider value synchronization (double-synchronized to avoid metastability)
-    always @(posedge out or negedge resetb) begin
+    always @(posedge out) begin
 	if (resetb == 1'b0) begin
 	    syncN <= 'd2;	// Default to divide-by-2 on system reset
 	    syncNp <= 'd2;	// Default to divide-by-2 on system reset
@@ -71,7 +71,7 @@ module odd #(
     assign out = out_counter2 ^ out_counter;
 
     // positive edge counter/divider
-    always @(posedge clk or negedge resetb) begin
+    always @(posedge clk) begin
 	if (resetb == 1'b0) begin
 	    counter <= N;
 	    out_counter <= 1;
@@ -94,7 +94,7 @@ module odd #(
  
     // Counter driven by negative edge of clock.
 
-    always @(negedge clk or negedge resetb) begin
+    always @(negedge clk) begin
 	if (resetb == 1'b0) begin
 	    // reset the counter at system reset
 	    counter2 <= N;
@@ -132,7 +132,7 @@ module odd #(
     // This block generates an internal reset for the odd divider in the
     // form of a single pulse signal when the odd divider is enabled.
 
-    always @(posedge clk or negedge resetb) begin
+    always @(posedge clk) begin
 	if (resetb == 1'b0) begin
 	    rst_pulse <= 0;
 	end else if (enable) begin
@@ -176,7 +176,7 @@ module even #(
     assign div_2 = {1'b0, N[SIZE-1:1]};
  
     // simple flip-flop even divider
-    always @(posedge clk or negedge resetb) begin
+    always @(posedge clk) begin
 	if (resetb == 1'b0) begin
 	    counter <= 1;
 	    out_counter <= 1;

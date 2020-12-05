@@ -60,11 +60,7 @@ module decred_top (
 
   assign s1_clk_internal = (S1_CLK_SELECT) ? S1_CLK_IN : s1_div_output;
 
-`ifdef USE_NONBLOCKING_HASH_MACRO
-  decred_nonblock decred(
-`else
-  decred_block decred(
-`endif
+  decred decred_macro (
     .EXT_RESET_N_fromHost(EXT_RESET_N_fromHost),
     .SCLK_fromHost(SCLK_fromHost),
     .M1_CLK(m1_clk_internal),
