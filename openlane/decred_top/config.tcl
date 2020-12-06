@@ -1,9 +1,9 @@
 # Design
 set ::env(DESIGN_NAME) "decred_top"
 
-set ::env(VERILOG_FILES) [glob $::env(OPENLANE_ROOT)/designs/caravel/verilog/rtl/decred_top/rtl/src/*.v]
+set ::env(VERILOG_FILES) [glob $::env(OPENLANE_ROOT)/designs/skywater130_decred_miner/verilog/rtl/decred_top/rtl/src/*.v]
 
-set ::env(BASE_SDC_FILE) [glob $::env(OPENLANE_ROOT)/designs/caravel/openlane/decred_top/decred_top.sdc]
+set ::env(BASE_SDC_FILE) [glob $::env(OPENLANE_ROOT)/designs/skywater130_decred_miner/openlane/decred_top/decred_top.sdc]
 
 set ::env(CLOCK_PORT) "M1_CLK_IN PLL_INPUT S1_CLK_IN"
 set ::env(CLOCK_NET) "clock_divBlock.even_0.clk decred_macro.SPI_CLK"
