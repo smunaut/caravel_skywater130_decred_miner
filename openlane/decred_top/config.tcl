@@ -32,6 +32,6 @@ set ::env(FP_ASPECT_RATIO) "1"
 #default is 0
 set ::env(FP_PDN_CORE_RING) 0
 #default is 6
-set ::env(GLB_RT_MAXLAYER) 6
+set ::env(GLB_RT_MAXLAYER) 5
 #default is 0
 set ::env(PL_BASIC_PLACEMENT) 0
