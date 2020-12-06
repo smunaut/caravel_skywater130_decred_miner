@@ -77,8 +77,8 @@ After ```make test``` succeeds, proceed to check out step next.
 ### Check Out
 ```
 cd openlane/designs
-git clone https://github.com/SweeperAA/skywater130_decred_miner.git ./caravel
-cd caravel
+git clone https://github.com/SweeperAA/skywater130_decred_miner.git
+cd skywater130_decred_miner
 make uncompress
 ```
 
