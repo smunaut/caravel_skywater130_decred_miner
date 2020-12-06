@@ -3,11 +3,11 @@ set ::env(DESIGN_NAME) "decred_top"
 
 set ::env(VERILOG_FILES) [glob $::env(OPENLANE_ROOT)/designs/caravel/verilog/rtl/decred_top/rtl/src/*.v]
 
-set ::env(CLOCK_PORT) "M1_CLK_IN"
+set ::env(BASE_SDC_FILE) [glob $::env(OPENLANE_ROOT)/designs/caravel/openlane/decred_top/decred_top.sdc]
 
-# Errors out during TritonCTS with: Net "M1_CLK_IN" has 1 sinks. Skipping...
-#set ::env(CLOCK_NET) "M1_CLK_IN"
-set ::env(CLOCK_TREE_SYNTH) 0
+set ::env(CLOCK_PORT) "M1_CLK_IN PLL_INPUT S1_CLK_IN"
+set ::env(CLOCK_NET) "clock_divBlock.even_0.clk decred_macro.SPI_CLK"
+#set ::env(CLOCK_TREE_SYNTH) 0
 
 set ::env(DESIGN_IS_CORE) 0
 
