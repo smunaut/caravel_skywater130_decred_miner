@@ -87,12 +87,12 @@ At this point, there are two ways build the decred ASIC flow. At the time of thi
 
 Option 1: Build the macro independent of the caravel chip harness user space area.
 ```
-cd caravel/openlane
+cd skywater130_decred_miner/openlane
 make decred_top
 ```
 
 Option 2: Build the entire user space together with decred.
 ```
-cd caravel/openlane
+cd skywater130_decred_miner/openlane
 make user_project_wrapper
 ```
