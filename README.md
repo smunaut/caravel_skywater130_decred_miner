@@ -83,15 +83,15 @@ make uncompress
 ```
 
 ### Build Decred Flow
-At this point, there are two ways build the decred ASIC flow. At the time of this writing, each option has it's own deficiencies but you can get some intermediate results.
+Building to integrate into the caravel test harness chip is done in two steps.
 
-Option 1: Build the macro independent of the caravel chip harness user space area.
+Step 1: Build the macro independent of the caravel chip.
 ```
 cd skywater130_decred_miner/openlane
 make decred_top
 ```
 
-Option 2: Build the entire user space together with decred.
+Step 2: Integrate macro into caravel user space.
 ```
 cd skywater130_decred_miner/openlane
 make user_project_wrapper
