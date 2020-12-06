@@ -98,8 +98,8 @@ module user_project_wrapper #(
 	.ID_toHost(analog_io[16]),
 	.CLK_LED(analog_io[17]),
 	.MISO_toHost(analog_io[18]),
-	.HASH_LED(analog_io[18]),
-	.IRQ_OUT_toHost(analog_io[19])
+	.HASH_LED(analog_io[19]),
+	.IRQ_OUT_toHost(analog_io[20])
     );
 
 endmodule	// user_project_wrapper
