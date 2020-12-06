@@ -32,9 +32,13 @@ The Decred blockchain provides a 180-byte header that includes common blockchain
 The Decred PoW process runs variations of the header (plus 16-byte padding) through the BLAKE-256r14 hash function and compares that result to a numerical value (smaller value better). The varying data of the header is the nonce space. A Nonce field exists at the end of the Decred header. While the Nonce field is only 32-bits, the ExtraData field can be used to expand the nonce space. After the full header is initially hashed, only the last chunk of 64 bytes needs to be rehashed for each change in nonce space. This is because the Nonce and ExtraData fields are at the end of the header. The result of hashing the first 128 bytes of the header is referred to as the midstate. The controller board generates the header’s midstate and sends it, along with other static header data and the target difficulty information, to the core via the SPI interface. After the necessary data is sent, the controller board enables hashing. If the hash unit determines that a result suffices that target difficulty, an interrupt is generated from the core to the controller board and the solution nonce is saved. Once the interrupt is handled by the controller board, it reads the solution nonce from the core’s register space.
 
 Midstate – 256 bytes
+
 Static Header Data – 16 bytes
+
 Threshold Mask – 4 bytes
+
 Upper Nonce Start – 4 bytes
+
 Note that Decred’s minimum difficulty of 1.0 relates to a target that has 0 in the most significant 32-bits (i.e., 0x00000000 XXXXXXXX YYYYYYYY YYYYYYYY YYYYYYYY YYYYYYYY YYYYYYYY YYYYYYYY) so the Threshold Mask only populates the second most significant word (i.e., X’s). Based on the expected hash performance, Decred difficulties greater than 2^32 were impractical to support. This allowed for optimizations in the hash unit.
 
 ### ASIC Chaining Support
