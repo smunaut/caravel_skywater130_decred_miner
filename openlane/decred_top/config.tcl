@@ -1,7 +1,19 @@
 # Design
 set ::env(DESIGN_NAME) "decred_top"
 
-set ::env(VERILOG_FILES) [glob $::env(OPENLANE_ROOT)/designs/skywater130_decred_miner/verilog/rtl/decred_top/rtl/src/*.v]
+set script_dir [file dirname [file normalize [info script]]]
+
+set ::env(VERILOG_FILES) "\
+   $script_dir/../../verilog/rtl/defines.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/decred_defines.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/decred_top.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/addressalyzer.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/clock_div.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/decred.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/hash_macro_nonblock.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/register_bank.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/spi_passthrough.v \
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/spi_slave_des.v"
 
 set ::env(BASE_SDC_FILE) [glob $::env(OPENLANE_ROOT)/designs/skywater130_decred_miner/openlane/decred_top/decred_top.sdc]
 
@@ -25,6 +37,7 @@ set ::env(CELL_PAD) "4"
 set ::env(GLB_RT_ADJUSTMENT) "0.15"
 #default is 3
 set ::env(DIODE_INSERTION_STRATEGY) "3"
+set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 5
 # default is 5
 set ::env(SYNTH_MAX_FANOUT) "5"
 #default is 1
