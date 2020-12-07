@@ -77,8 +77,8 @@ After ```make test``` succeeds, proceed to check out step next.
 ### Check Out
 ```
 cd openlane/designs
-git clone https://github.com/SweeperAA/skywater130_decred_miner.git
-cd skywater130_decred_miner
+git clone https://github.com/SweeperAA/caravel_skywater130_decred_miner.git
+cd caravel_skywater130_decred_miner
 make uncompress
 ```
 
@@ -87,12 +87,11 @@ Building to integrate into the caravel test harness chip is done in two steps.
 
 Step 1: Build the macro independent of the caravel chip.
 ```
-cd skywater130_decred_miner/openlane
+cd caravel_skywater130_decred_miner/openlane
 make decred_top
 ```
 
 Step 2: Integrate macro into caravel user space.
 ```
-cd skywater130_decred_miner/openlane
 make user_project_wrapper
 ```
