@@ -46,8 +46,38 @@ Note that Decred’s minimum difficulty of 1.0 relates to a target that has 0 in
 It is common for crypto currency mining machine manufacturers to chain several dozen ASIC chips together in a single unit to maximize hash rate SWaP (size, weight, and power). This project implements support for chaining ASICs to a single controller board.
 
 ### Register File
-TBD
 
+A small number of registers are provided at the register_bank level and accessed via the SPI interface.  Read/write operations can operate on different data (see R/W field).  A register window is used to interface with registers at the hash_macro level.
+```
+register_bank
+0x00  RW  Macro address
+0x01   W  Macro write data
+0x02  R   Macro interrupt status 
+0x02   W  Macro select (bit mapped)
+0x03  RW  Control byte
+        0 Macro read enable
+        2 Clk counter enable
+        3 LED output
+        4 M1 clk reset
+        5 Chain enable
+0x04  RW  SPI address [6:0]
+0x05  R   ID register
+0x05   W  Macro write stobe
+0x06  R   Macro ID register
+0x07  R   Perf counter [7:0]
+0x08  R   Perf counter [15:8]
+0x09  R   Perf counter [23:16]
+0x0A  R   Perf counter [31:24]
+0x80  R   Macro data
+
+hash_macro
+0x00 - 0x1F Midstate
+0x20 - 0x23 Threshold Mask
+0x24 - 0x33 Static Header Data
+0x34 - 0x37 Upper nonce start
+0x38 - 0x39 Nonce start
+0x3A - 0x3B Stride
+```
 ### Verilog Module Hierarchy
 
 ```
