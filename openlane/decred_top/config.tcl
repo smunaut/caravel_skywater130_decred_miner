@@ -23,7 +23,7 @@ set ::env(CLOCK_NET) "clock_divBlock.even_0.clk decred_macro.SPI_CLK"
 set ::env(DESIGN_IS_CORE) 0
 
 set ::env(FP_SIZING) absolute
-set ::env(DIE_AREA) "0 0 2700 3300"
+set ::env(DIE_AREA) "0 0 2800 3400"
 
 # 2 hash units
 set ::env(CLOCK_PERIOD) "15.000"
@@ -36,7 +36,7 @@ set ::env(CELL_PAD) "4"
 set ::env(GLB_RT_ADJUSTMENT) "0.15"
 #default is 3
 set ::env(DIODE_INSERTION_STRATEGY) "3"
-set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 5
+set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 10
 # default is 5
 set ::env(SYNTH_MAX_FANOUT) "5"
 #default is 1
