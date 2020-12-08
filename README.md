@@ -55,11 +55,12 @@ register_bank
 0x02  R   Macro interrupt status 
 0x02   W  Macro select (bit mapped)
 0x03  RW  Control byte
-        0 Macro read enable
+        0 Macro read enable strobe
+	1 <unused>
         2 Clk counter enable
-        3 LED output
+        3 LED output GPIO
         4 M1 clk reset
-        5 Chain enable
+        5 Chain enable GPIO
 0x04  RW  SPI address [6:0]
 0x05  R   ID register
 0x05   W  Macro write stobe
