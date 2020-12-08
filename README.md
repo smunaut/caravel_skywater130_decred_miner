@@ -1,123 +1,98 @@
-# CIIC Harness  
+# Skywater 130 Decred Miner
 
-A template SoC for Google SKY130 free shuttles. It is still WIP. The current SoC architecture is given below.
+## Table of Contents
+* [Introduction](#introduction)
+* [Implementation](#implementation)
+	* [Hash Unit Input Data](#hash-unit-input-data)
+  * [ASIC Chaining Support](#asic-chaining-support)
+	* [Register File](#register-file)
+  * [Verilog Module Hierarchy](#verilog-module-hierarchy)
+* [Building](#building)
+  * [Check Out](#check-out)
+  * [Build Decred Flow](#build-decred-flow)
+  
+  
 
-<p align=”center”>
-<img src="/doc/ciic_harness.png" width="75%" height="75%"> 
-</p>
+## Introduction
 
+Decred is a blockchain-based cryptocurrency that utilizes a hybrid Proof-of-Work (PoW) and Proof-of-Stake (PoS) mining system. More about Decred can be found at https://docs.decred.org.
 
-## Getting Started:
+The PoW element of Decred uses the BLAKE-256 (14 round) hashing function and is described in more detail at https://docs.decred.org/research/blake-256-hash-function.
 
-* For information on tooling and versioning, please refer to [this][1].
+The Skywater 130 Decred Miner project implements a BLAKE-256r14 hash unit that is optimized for the Decred blockchain (i.e., not a generic BLAKE-256r14 hash unit). In addition to the hash unit, the core also includes a SPI unit with addressable register space and a device interrupt; all to be used with a separate controller board. The core is implemented on Skywater’s SKY130 process.
 
-Start by cloning the repo and uncompressing the files.
-```bash
-git clone https://github.com/efabless/caravel.git
-cd caravel
+Several Decred ASICs have been produced in the past at process nodes much smaller than 130nm (some as small as 16nm). This project’s purpose is not intended to compete with the performance per watt of those commercially available units. Rather, this project was intended as a method to learn about the challenges of ASIC development and provide a stepping stone for open-source ASIC development.
+
+## Implementation
+
+### Hash Unit Input Data
+
+The Decred blockchain provides a 180-byte header that includes common blockchain fields such as previous block hash, merkle root, timestamp, nonce, and height. It also includes Decred-specific fields such as voting information that works with the PoS portion of Decred. The Decred header specification can be found at https://devdocs.decred.org/developer-guides/block-header-specifications.
+
+The Decred PoW process runs variations of the header (plus 16-byte padding) through the BLAKE-256r14 hash function and compares that result to a numerical value (smaller value better). The varying data of the header is the nonce space. A Nonce field exists at the end of the Decred header. While the Nonce field is only 32-bits, the ExtraData field can be used to expand the nonce space. After the full header is initially hashed, only the last chunk of 64 bytes needs to be rehashed for each change in nonce space. This is because the Nonce and ExtraData fields are at the end of the header. The result of hashing the first 128 bytes of the header is referred to as the midstate. The controller board generates the header’s midstate and sends it, along with other static header data and the target difficulty information, to the core via the SPI interface. After the necessary data is sent, the controller board enables hashing. If the hash unit determines that a result suffices that target difficulty, an interrupt is generated from the core to the controller board and the solution nonce is saved. Once the interrupt is handled by the controller board, it reads the solution nonce from the core’s register space.
+
+Midstate – 256 bytes
+
+Static Header Data – 16 bytes
+
+Threshold Mask – 4 bytes
+
+Upper Nonce Start – 4 bytes
+
+Note that Decred’s minimum difficulty of 1.0 relates to a target that has 0 in the most significant 32-bits (i.e., 0x00000000 XXXXXXXX YYYYYYYY YYYYYYYY YYYYYYYY YYYYYYYY YYYYYYYY YYYYYYYY) so the Threshold Mask only populates the second most significant word (i.e., X’s). Based on the expected hash performance, Decred difficulties greater than 2^32 were impractical to support. This allowed for optimizations in the hash unit.
+
+### ASIC Chaining Support
+
+It is common for crypto currency mining machine manufacturers to chain several dozen ASIC chips together in a single unit to maximize hash rate SWaP (size, weight, and power). This project implements support for chaining ASICs to a single controller board.
+
+### Register File
+TBD
+
+### Verilog Module Hierarchy
+
+```
+decred_top.v
+   |
+    - clock_div.v
+   |
+    - decred.v
+         |
+          - addressalyzer.v
+         |
+          - spi_passthrough.v
+         |
+          - spi_slave_des.v
+         |
+          - register_bank.v
+               |
+                - hash_macro_nonblock.v
+```
+
+## Building
+Follow the steps at https://github.com/efabless/openlane#quick-start. 
+Note that as of the time of this writing, openlane rc5 was the current release branch (i.e., git clone https://github.com/efabless/openlane.git --branch rc5).
+
+After ```make test``` succeeds, proceed to check out step next.
+
+### Check Out
+```
+cd openlane/designs
+git clone https://github.com/SweeperAA/caravel_skywater130_decred_miner.git
+cd caravel_skywater130_decred_miner
 make uncompress
 ```
 
-Then you need to install the open_pdks prerequisite:
- - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60*
+### Build Decred Flow
+Building to integrate into the caravel test harness chip is done in two steps.
 
- > \* Note: You can avoid the need for the magic prerequisite by using the openlane docker to do the installation step in open_pdks. This [file](https://github.com/efabless/openlane/blob/develop/travisCI/travisBuild.sh) shows how.
-
-Install the required version of the PDK by running the following commands:
-
-```bash
-export PDK_ROOT=<The place where you want to install the pdk>
-make pdk
+Step 1: Build the macro independent of the caravel chip.
+```
+cd caravel_skywater130_decred_miner/openlane
+make decred_top
 ```
 
-Then, you can learn more about the caravel chip by watching these video:
-- Caravel User Project Features -- https://youtu.be/zJhnmilXGPo
-- Aboard Caravel -- How to put your design on Caravel? -- https://youtu.be/9QV8SDelURk
-- Things to Clarify About Caravel -- What versions to use with Caravel? -- https://youtu.be/-LZ522mxXMw
-    - You could only use openlane:rc5
-    - Make sure you have the commit hashes provided here inside the [Makefile](./Makefile)
-## Aboard Caravel:
-
-Your area is the full user_project_wrapper, so feel free to add your project there or create a differnt macro and harden it seperately then insert it into the user_project_wrapper. For example, if your design is analog or you're using a different tool other than OpenLANE.
-
-If you will use OpenLANE to harden your design, go through the instructions in this [README.md][0].
-
-Then, you will need to put your design aboard the Caravel chip. Make sure you have the following:
-
-- [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) installed on your machine. We may provide a Dockerized version later.\*
-- You have your user_project_wrapper.gds under `./gds/` in the Caravel directory.
-
- > \* **Note:** You can avoid the need for the magic prerequisite by using the openlane docker to run the make step. This [section](#running-make-using-openlane-magic) shows how.
-
-Run the following command:
-
-```bash
-export PDK_ROOT=<The place where the installed pdk resides. The same PDK_ROOT used in the pdk installation step>
-make
+Step 2: Integrate macro into caravel user space.
+```
+make user_project_wrapper
 ```
 
-This should merge the GDSes using magic and you'll end up with your version of `./gds/caravel.gds`. You should expect hundred of thousands of magic DRC violations with the current "development" state of caravel.
-
-## Running Make using OpenLANE Magic
-
-To use the magic installed inside Openlane to complete the final GDS streaming out step, export the following:
-
-```bash
-export PDK_ROOT=<The location where the pdk is installed>
-export OPENLANE_ROOT=<the absolute path to the openlane directory cloned or to be cloned>
-export IMAGE_NAME=<the openlane image name installed on your machine. Preferably openlane:rc5>
-export CARAVEL_PATH=$(pwd)
-```
-
-Then, mount the docker:
-
-```bash
-docker run -it -v $CARAVEL_PATH:$CARAVEL_PATH -v $OPENLANE_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e CARAVEL_PATH=$CARAVEL_PATH -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
-```
-
-Finally, once inside the docker run the following commands:
-```bash
-cd $CARAVEL_PATH
-make
-exit
-```
-
-This should merge the GDSes using magic and you'll end up with your version of `./gds/caravel.gds`. You should expect hundred of thousands of magic DRC violations with the current "development" state of caravel.
-
-## Required Directory Structure
-
-- ./gds/ : includes all the gds files used or produced from the project.
-- ./def/ : includes all the def files used or produced from the project.
-- ./lef/ : includes all the lef files used or produced from the project.
-- ./mag/ : includes all the mag files used or produced from the project.
-- ./maglef/ : includes all the maglef files used or produced from the project.
-- ./spi/lvs/ : includes all the maglef files used or produced from the project.
-- ./verilog/dv/ : includes all the simulation test benches and how to run them. 
-- ./verilog/gl/ : includes all the synthesized/elaborated netlists. 
-- ./verilog/rtl/ : includes all the Verilog RTLs and source files.
-- ./openlane/`<macro>`/ : includes all configuration files used to run openlane on your project.
-- info.yaml: includes all the info required in [this example](info.yaml). Please make sure that you are pointing to an elaborated caravel netlist as well as a synthesized gate-level-netlist for the user_project_wrapper
-
-## Managment SoC
-The managment SoC runs firmware that can be used to:
-- Configure User Project I/O pads
-- Observe and control User Project signals (through on-chip logic analyzer probes)
-- Control the User Project power supply
-
-The memory map of the management SoC can be found [here](verilog/rtl/README)
-
-## User Project Area
-This is the user space. It has limited silicon area (TBD, about 3.1mm x 3.8mm) as well as a fixed number of I/O pads (37) and power pads (10).  See [the Caravel  premliminary datasheet](doc/caravel_datasheet.pdf) for details.
-The repository contains a [sample user project](/verilog/rtl/user_proj_example.v) that contains a binary 32-bit up counter.  </br>
-
-<p align=”center”>
-<img src="/doc/counter_32.png" width="50%" height="50%">
-</p>
-
-The firmware running on the Management Area SoC, configures the I/O pads used by the counter and uses the logic probes to observe/control the counter. Three firmware examples are provided:
-1. Configure the User Project I/O pads as o/p. Observe the counter value in the testbench: [IO_Ports Test](verilog/dv/caravel/user_proj_example/io_ports).
-2. Configure the User Project I/O pads as o/p. Use the Chip LA to load the counter and observe the o/p till it reaches 500: [LA_Test1](verilog/dv/caravel/user_proj_example/la_test1).
-3. Configure the User Project I/O pads as o/p. Use the Chip LA to control the clock source and reset signals and observe the counter value for five clock cylcles:  [LA_Test2](verilog/dv/caravel/user_proj_example/la_test2).
-
-[0]: openlane/README.md
-[1]: mpw-one-a.md
