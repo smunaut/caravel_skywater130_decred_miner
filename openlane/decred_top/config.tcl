@@ -19,18 +19,17 @@ set ::env(BASE_SDC_FILE) [glob $::env(OPENLANE_ROOT)/designs/caravel_skywater130
 
 set ::env(CLOCK_PORT) "M1_CLK_IN PLL_INPUT S1_CLK_IN"
 set ::env(CLOCK_NET) "clock_divBlock.even_0.clk decred_macro.SPI_CLK"
-#set ::env(CLOCK_TREE_SYNTH) 0
 
 set ::env(DESIGN_IS_CORE) 0
 
 set ::env(FP_SIZING) absolute
-set ::env(DIE_AREA) "0 0 2920 3520"
+set ::env(DIE_AREA) "0 0 2700 3300"
 
-# 8 macro
+# 2 hash units
 set ::env(CLOCK_PERIOD) "15.000"
 #default is 50
-set ::env(FP_CORE_UTIL) "55"
-set ::env(PL_TARGET_DENSITY) 0.58
+set ::env(FP_CORE_UTIL) "50"
+set ::env(PL_TARGET_DENSITY) 0.24
 set ::env(SYNTH_STRATEGY) "1"
 set ::env(CELL_PAD) "4"
 #default is 0.15
