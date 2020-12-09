@@ -2,7 +2,7 @@
 project: 
   description: "A template SoC for Google sponsored Open MPW shuttles for SKY130."
   foundry: "SkyWater"
-  git_url: "https://github.com/SweeperAA/skywater130_decred_miner.git"
+  git_url: "https://github.com/SweeperAA/caravel_skywater130_decred_miner.git"
   organization: ""
   organization_url: ""
   owner: "Matt Aamold, James Aamold"
