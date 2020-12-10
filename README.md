@@ -90,9 +90,7 @@ decred_top.v
          |
           - addressalyzer.v
          |
-          - spi_passthrough.v
-         |
-          - spi_slave_des.v
+          - spi_*.v
          |
           - register_bank.v
                |
