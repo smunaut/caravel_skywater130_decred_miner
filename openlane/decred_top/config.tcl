@@ -29,7 +29,7 @@ set ::env(DIE_AREA) "0 0 2800 3400"
 set ::env(CLOCK_PERIOD) "15.000"
 #default is 50
 set ::env(FP_CORE_UTIL) "50"
-set ::env(PL_TARGET_DENSITY) 0.24
+set ::env(PL_TARGET_DENSITY) 0.55
 set ::env(SYNTH_STRATEGY) "1"
 set ::env(CELL_PAD) "4"
 #default is 0.15
