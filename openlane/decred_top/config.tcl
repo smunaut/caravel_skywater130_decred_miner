@@ -15,7 +15,7 @@ set ::env(VERILOG_FILES) "\
    $script_dir/../../verilog/rtl/decred_top/rtl/src/spi_passthrough.v \
    $script_dir/../../verilog/rtl/decred_top/rtl/src/spi_slave_des.v"
 
-set ::env(BASE_SDC_FILE) [glob $::env(OPENLANE_ROOT)/designs/caravel_skywater130_decred_miner/openlane/decred_top/decred_top.sdc]
+set ::env(BASE_SDC_FILE) "$script_dir/decred_top.sdc"
 
 set ::env(CLOCK_PORT) "M1_CLK_IN PLL_INPUT S1_CLK_IN"
 set ::env(CLOCK_NET) "clock_divBlock.even_0.clk decred_macro.SPI_CLK"
