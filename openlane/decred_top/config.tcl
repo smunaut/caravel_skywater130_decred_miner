@@ -13,7 +13,7 @@ set ::env(VERILOG_FILES) "\
    $script_dir/../../verilog/rtl/decred_top/rtl/src/hash_macro_nonblock.v \
    $script_dir/../../verilog/rtl/decred_top/rtl/src/register_bank.v \
    $script_dir/../../verilog/rtl/decred_top/rtl/src/spi_passthrough.v \
-   $script_dir/../../verilog/rtl/decred_top/rtl/src/spi_slave_des.v"
+   $script_dir/../../verilog/rtl/decred_top/rtl/src/spi_des.v"
 
 set ::env(BASE_SDC_FILE) "$script_dir/decred_top.sdc"
 
