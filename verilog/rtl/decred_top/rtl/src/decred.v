@@ -152,8 +152,7 @@ module decred (
   // //////////////////////////////////////////////////////
   // Interface to regfile
 
-  regBank #(.NUM_OF_MACROS(`NUMBER_OF_MACROS))
-  regBankBlock (
+  regBank regBankBlock (
     .SPI_CLK(SPI_CLK),
     .RST(rst_local),
     .M1_CLK(M1_CLK),
