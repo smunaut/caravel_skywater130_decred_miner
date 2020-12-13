@@ -19,8 +19,7 @@
 
 module regBank #(
   parameter DATA_WIDTH=8,
-  parameter ADDR_WIDTH=8,
-  parameter NUM_OF_MACROS=2
+  parameter ADDR_WIDTH=8
 )(
   input  wire                  SPI_CLK,
   input  wire                  RST,
@@ -46,7 +45,7 @@ module regBank #(
   reg  [DATA_WIDTH-1:0] registers [REGISTERS-1:0];
 
   reg  [7: 0] macro_data_read_rs[1:0];
-  wire [3 :0] threadCount [NUM_OF_MACROS-1:0];
+  wire [3 :0] threadCount [`NUMBER_OF_MACROS-1:0];
 
   reg [31:0] perf_counter;
   always @(posedge M1_CLK)
@@ -79,7 +78,7 @@ module regBank #(
 		end else
 		  if (address[7:0] == 8'h06) begin
 			// MACRO_INFO register
-			data_out <= ((NUM_OF_MACROS << 4) | (threadCount[0]));
+			data_out <= ((`NUMBER_OF_MACROS << 4) | (threadCount[0]));
 		end else
 		  if (address[7:0] == 8'h07) begin
 			data_out <= perf_counter[7:0];
@@ -139,11 +138,11 @@ module regBank #(
   end
   assign HASH_start = hash_en_rs[1];
 
-  reg		[NUM_OF_MACROS - 1: 0]	wr_select_rs[1:0];
+  reg		[`NUMBER_OF_MACROS - 1: 0]	wr_select_rs[1:0];
   always @ (posedge M1_CLK)
   begin
     wr_select_rs[1] <= wr_select_rs[0];
-    wr_select_rs[0] <= registers[5][NUM_OF_MACROS - 1: 0];
+    wr_select_rs[0] <= registers[5][`NUMBER_OF_MACROS - 1: 0];
   end
 
   reg		[7: 0]	macro_data_write_rs[1:0];
@@ -153,11 +152,11 @@ module regBank #(
     macro_data_write_rs[0] <= registers[1];
   end
 
-  reg		[NUM_OF_MACROS - 1: 0]	rd_select_rs[1:0];
+  reg		[`NUMBER_OF_MACROS - 1: 0]	rd_select_rs[1:0];
   always @ (posedge M1_CLK)
   begin
     rd_select_rs[1] <= rd_select_rs[0];
-    rd_select_rs[0] <= registers[2][NUM_OF_MACROS - 1: 0];
+    rd_select_rs[0] <= registers[2][`NUMBER_OF_MACROS - 1: 0];
   end
 
   reg		[5: 0]	macro_addr_rs[1:0];
@@ -170,8 +169,8 @@ module regBank #(
   // //////////////////////////////////////////////////////
   // resync - signals from hash_macro 
 
-  wire	[NUM_OF_MACROS - 1: 0]	macro_interrupts;
-  reg		[NUM_OF_MACROS - 1: 0]	macro_rs[1:0];
+  wire	[`NUMBER_OF_MACROS - 1: 0]	macro_interrupts;
+  reg		[`NUMBER_OF_MACROS - 1: 0]	macro_rs[1:0];
 
   always @(posedge SPI_CLK) begin
     macro_rs[1] <= macro_rs[0];
@@ -191,7 +190,7 @@ module regBank #(
   // hash macro interface
 
   genvar i;
-  for (i = 0; i < NUM_OF_MACROS; i = i + 1) begin: hash_macro_multi_block
+  for (i = 0; i < `NUMBER_OF_MACROS; i = i + 1) begin: hash_macro_multi_block
 `ifdef USE_NONBLOCKING_HASH_MACRO
     blake256r14_core_nonblock hash_macro (
 `else
