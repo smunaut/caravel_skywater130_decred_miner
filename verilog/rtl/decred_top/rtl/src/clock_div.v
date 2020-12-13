@@ -45,7 +45,7 @@ module clock_div #(
     assign enable_even = !syncN[0];
 
     // Divider value synchronization (double-synchronized to avoid metastability)
-    always @(posedge out) begin
+    always @(posedge out or negedge resetb) begin
 	if (resetb == 1'b0) begin
 	    syncN <= 'd2;	// Default to divide-by-2 on system reset
 	    syncNp <= 'd2;	// Default to divide-by-2 on system reset
