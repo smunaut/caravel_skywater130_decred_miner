@@ -17,8 +17,11 @@ apply_def_template
 
 #add_macro_placement mprj 1150 1700 N
 #add_macro_placement mprj 0 0 N
-add_macro_placement decred_hash_block0 272.00 460.0 S
-add_macro_placement decred_controller_block 1770.72 920.0 S
+add_macro_placement decred_hash_block0 133.28 368.0 S
+add_macro_placement decred_hash_block1 1593.92 368.0 S
+add_macro_placement decred_hash_block2 133.28 1919.58 S
+add_macro_placement decred_hash_block3 1593.92 1919.58 S
+add_macro_placement decred_controller_block 1360.0 1577.8 S
 
 manual_macro_placement f
 

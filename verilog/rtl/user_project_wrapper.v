@@ -14,7 +14,7 @@
  *-------------------------------------------------------------
  */
 
-//`include "decred_top/rtl/src/decred_defines.v"
+`include "decred_top/rtl/src/decred_defines.v"
 
 module user_project_wrapper #(
     parameter BITS = 32
@@ -125,7 +125,6 @@ module user_project_wrapper #(
   );
 
 decred_hash_macro decred_hash_block0 (
-					  
       .CLK(m1_clk_local), 
       .HASH_EN(HASH_EN), 
       .MACRO_WR_SELECT(MACRO_WR_SELECT[0]),
@@ -137,7 +136,42 @@ decred_hash_macro decred_hash_block0 (
       .DATA_FROM_HASH(DATA_FROM_HASH)
   );
 
+decred_hash_macro decred_hash_block1 (
+      .CLK(m1_clk_local), 
+      .HASH_EN(HASH_EN), 
+      .MACRO_WR_SELECT(MACRO_WR_SELECT[1]),
+      .DATA_TO_HASH(DATA_TO_HASH),
+      .MACRO_RD_SELECT(MACRO_RD_SELECT[1]),
+      .HASH_ADDR(HASH_ADDR),
+      .THREAD_COUNT(THREAD_COUNT[1]),
+      .DATA_AVAILABLE(DATA_AVAILABLE[1]),
+      .DATA_FROM_HASH(DATA_FROM_HASH)
+  );
 
+decred_hash_macro decred_hash_block2 (
+      .CLK(m1_clk_local), 
+      .HASH_EN(HASH_EN), 
+      .MACRO_WR_SELECT(MACRO_WR_SELECT[2]),
+      .DATA_TO_HASH(DATA_TO_HASH),
+      .MACRO_RD_SELECT(MACRO_RD_SELECT[2]),
+      .HASH_ADDR(HASH_ADDR),
+      .THREAD_COUNT(THREAD_COUNT[2]),
+      .DATA_AVAILABLE(DATA_AVAILABLE[2]),
+      .DATA_FROM_HASH(DATA_FROM_HASH)
+  );
+
+
+decred_hash_macro decred_hash_block3 (
+      .CLK(m1_clk_local), 
+      .HASH_EN(HASH_EN), 
+      .MACRO_WR_SELECT(MACRO_WR_SELECT[3]),
+      .DATA_TO_HASH(DATA_TO_HASH),
+      .MACRO_RD_SELECT(MACRO_RD_SELECT[3]),
+      .HASH_ADDR(HASH_ADDR),
+      .THREAD_COUNT(THREAD_COUNT[3]),
+      .DATA_AVAILABLE(DATA_AVAILABLE[3]),
+      .DATA_FROM_HASH(DATA_FROM_HASH)
+  );
 
 endmodule	// user_project_wrapper
 `default_nettype wire
