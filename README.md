@@ -109,19 +109,34 @@ cd openlane/designs
 git clone https://github.com/SweeperAA/caravel_skywater130_decred_miner.git
 cd caravel_skywater130_decred_miner
 make uncompress
+cd caravel_skywater130_decred_miner/openlane
 ```
 
 ### Build Decred Flow
-Building to integrate into the caravel test harness chip is done in two steps.
+Building to integrate into the caravel test harness chip is done in several steps.
 
-Step 1: Build the macro independent of the caravel chip.
+Step 1: Build the hashing unit macro.
 ```
-cd caravel_skywater130_decred_miner/openlane
+make decred_hash_macro
+```
+
+Step 2: Build the controller macro.
+```
+make decred_controller
+```
+
+Step 3: Integrate macros inside decred_top design.
+```
 make decred_top
 ```
 
-Step 2: Integrate macro into caravel user space.
+Step 4: Integrate decred_top design into user_project_wrapper.
 ```
 make user_project_wrapper
 ```
 
+Step 5: Integrate user_project_wrapper into caravel SOC.
+```
+cd ..
+make ship
+```
