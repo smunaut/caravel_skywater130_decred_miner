@@ -46,6 +46,7 @@ module decred_controller (
   output wire [7: 0]                     DATA_TO_HASH,
   output wire [`NUMBER_OF_MACROS - 1: 0] MACRO_RD_SELECT,
   output wire [5: 0]                     HASH_ADDR,
+  input wire  [3 :0]                     THREAD_COUNT,
   input wire  [`NUMBER_OF_MACROS - 1: 0] DATA_AVAILABLE,
   input wire  [7: 0]                     DATA_FROM_HASH
   );
@@ -54,22 +55,19 @@ module decred_controller (
   // Clocking
 
   // M1 clock is sourced from pin or PLL
-  wire m1_clk_internal;
-  assign m1_clk_internal = (M1_CLK_SELECT) ? M1_CLK_IN : PLL_INPUT;
-  assign m1_clk_local = m1_clk_internal;
+  assign m1_clk_local = (M1_CLK_SELECT) ? M1_CLK_IN : PLL_INPUT;
 
   // S1 clock is sourced from pin or divider
-  wire s1_clk_internal;
+  wire s1_clk_local;
   wire s1_div_output;
 
-  clock_div #(.SIZE(3)) clock_divBlock (
-    .in(m1_clk_internal),
-    .out(s1_div_output),
-    .N(3'h6),
-    .resetb(SPI_CLK_RESET_N)
+  clock_div clock_divBlock (
+    .iCLK(m1_clk_local),
+    .clk_out(s1_div_output),
+    .RSTn(SPI_CLK_RESET_N)
   );
 
-  assign s1_clk_internal = (S1_CLK_SELECT) ? S1_CLK_IN : s1_div_output;
+  assign s1_clk_local = (S1_CLK_SELECT) ? S1_CLK_IN : s1_div_output;
 
   // //////////////////////////////////////////////////////
   // Pass-through wires
@@ -88,7 +86,7 @@ module decred_controller (
 
   reg [23:1] counter;
   
-  always @(posedge m1_clk_internal)
+  always @(posedge m1_clk_local)
     if (rst_local) 
 	    counter <= 0;
 	  else
@@ -107,7 +105,7 @@ module decred_controller (
   wire [7:0] miso_data_in;
 
   spi spiBlock(
-    .SPI_CLK(s1_clk_internal),
+    .SPI_CLK(s1_clk_local),
     .RST(rst_local),
     .SCLK(sclk_local),
     .SCSN(scsn_local),
@@ -126,7 +124,7 @@ module decred_controller (
   // SPI pass through
 
   spi_passthrough spiPassBlock(
-    .SPI_CLK(s1_clk_internal),
+    .SPI_CLK(s1_clk_local),
     .RSTin(EXT_RESET_N_fromHost),
     .ID_in(ID_fromClient),
     .IRQ_in(IRQ_OUT_fromClient),
@@ -163,7 +161,7 @@ module decred_controller (
   wire        regFile_write_strobe;
 
   addressalyzer addressalyzerBlock (
-    .SPI_CLK(s1_clk_internal),
+    .SPI_CLK(s1_clk_local),
     .RST(rst_local),
 
     .start_of_transfer(start_of_transfer),
@@ -183,9 +181,9 @@ module decred_controller (
   // Interface to regfile
 
   regBank regBankBlock (
-    .SPI_CLK(s1_clk_internal),
+    .SPI_CLK(s1_clk_local),
     .RST(rst_local),
-    .M1_CLK(m1_clk_internal),
+    .M1_CLK(m1_clk_local),
     .address(address[7:0]),
     .data_in(mosi_data_out),
     .read_strobe(regFile_read_strobe),
@@ -203,6 +201,7 @@ module decred_controller (
     .DATA_TO_HASH(DATA_TO_HASH),
     .MACRO_RD_SELECT(MACRO_RD_SELECT),
     .HASH_ADDR(HASH_ADDR),
+    .THREAD_COUNT(THREAD_COUNT),
     .DATA_AVAILABLE(DATA_AVAILABLE),
     .DATA_FROM_HASH(DATA_FROM_HASH)
   );

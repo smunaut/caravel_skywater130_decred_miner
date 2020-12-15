@@ -25,9 +25,9 @@ module regBank #(
   output wire [7: 0]                     DATA_TO_HASH,
   output wire [`NUMBER_OF_MACROS - 1: 0] MACRO_RD_SELECT,
   output wire [5: 0]                     HASH_ADDR,
+  input wire  [3 :0]                     THREAD_COUNT,
   input wire  [`NUMBER_OF_MACROS - 1: 0] DATA_AVAILABLE,
   input wire  [7: 0]                     DATA_FROM_HASH
-
   );
 
   localparam REGISTERS = 6;
@@ -70,7 +70,7 @@ module regBank #(
 		end else
 		  if (address[7:0] == 8'h06) begin
 			// MACRO_INFO register
-			data_out <= ((`NUMBER_OF_MACROS << 4) | (6)); // FIXME
+			data_out <= ((`NUMBER_OF_MACROS << 4) | (THREAD_COUNT));
 		end else
 		  if (address[7:0] == 8'h07) begin
 			data_out <= perf_counter[7:0];
@@ -182,29 +182,5 @@ module regBank #(
     macro_data_read_rs[0] <= macro_data_readback;
   end
   assign macro_data_readback = DATA_FROM_HASH;
-`ifdef NOT_DEFINE // remove me
-  // //////////////////////////////////////////////////////
-  // hash macro interface
-
-  genvar i;
-  for (i = 0; i < `NUMBER_OF_MACROS; i = i + 1) begin: hash_macro_multi_block
-    blake256r14_core_nonblock hash_macro (
-					  
-						.CLK(M1_CLK), 
-						.HASH_EN(HASH_start), 
-
-						.MACRO_WR_SELECT(wr_select_rs[1][i]),
-						.DATA_TO_HASH(macro_data_write_rs[1]),
-
-						.MACRO_RD_SELECT(rd_select_rs[1][i]),
-						.HASH_ADDR(macro_addr_rs[1]),
-
-						.THREAD_COUNT(threadCount[i]), // one is used == [0]
-
-						.DATA_AVAILABLE(macro_interrupts[i]),
-						.DATA_FROM_HASH(macro_data_readback)
-					  );
-  end
-`endif
 endmodule // regBank
 

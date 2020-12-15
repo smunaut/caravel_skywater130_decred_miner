@@ -14,6 +14,8 @@
  *-------------------------------------------------------------
  */
 
+//`include "decred_top/rtl/src/decred_defines.v"
+
 module user_project_wrapper #(
     parameter BITS = 32
 )(
@@ -60,47 +62,76 @@ module user_project_wrapper #(
     input   user_clock2
 );
 
-    /*--------------------------------------*/
-    /* Instantiation of decred_top.         */
-    /*--------------------------------------*/
+  /*--------------------------------------*/
+  /* Instantiation of decred_top.         */
+  /*--------------------------------------*/
+  assign io_oeb[28:20] = {9{1'b0}};
+  assign io_oeb[19:8] = {12{1'b1}};
 
-    decred_top mprj (
-    `ifdef USE_POWER_PINS
-	.vdda1(vdda1),	// User area 1 3.3V power
-	.vdda2(vdda2),	// User area 2 3.3V power
-	.vssa1(vssa1),	// User area 1 analog ground
-	.vssa2(vssa2),	// User area 2 analog ground
-	.vccd1(vccd1),	// User area 1 1.8V power
-	.vccd2(vccd2),	// User area 2 1.8V power
-	.vssd1(vssd1),	// User area 1 digital ground
-	.vssd2(vssd2),	// User area 2 digital ground
-    `endif
-	// inputs
-	.PLL_INPUT(user_clock2),
-	.EXT_RESET_N_fromHost(analog_io[10]),
-	.SCLK_fromHost(analog_io[11]),
-	.M1_CLK_IN(analog_io[12]),
-	.M1_CLK_SELECT(analog_io[13]),
-	.S1_CLK_IN(analog_io[14]),
-	.S1_CLK_SELECT(analog_io[15]),
-	.SCSN_fromHost(analog_io[16]),
-	.MOSI_fromHost(analog_io[17]),
-	.MISO_fromClient(analog_io[18]),
-	.IRQ_OUT_fromClient(analog_io[19]),
-	.ID_fromClient(analog_io[20]),
-	.SPI_CLK_RESET_N(analog_io[21]),
+  wire                             m1_clk_local;
+  wire                             HASH_EN;
+  wire [`NUMBER_OF_MACROS - 1: 0]  MACRO_WR_SELECT;
+  wire [7: 0]                      DATA_TO_HASH;
+  wire [`NUMBER_OF_MACROS - 1: 0]  MACRO_RD_SELECT;
+  wire [5: 0]                      HASH_ADDR;
+  wire [3 :0]                      THREAD_COUNT [`NUMBER_OF_MACROS-1:0];
+  wire [`NUMBER_OF_MACROS - 1: 0]  DATA_AVAILABLE;
+  wire [7: 0]                      DATA_FROM_HASH;
 
-	// outputs
-	.SCSN_toClient(analog_io[22]),
-	.SCLK_toClient(analog_io[23]),
-	.MOSI_toClient(analog_io[24]),
-	.EXT_RESET_N_toClient(analog_io[25]),
-	.ID_toHost(analog_io[26]),
-	.CLK_LED(analog_io[27]),
-	.MISO_toHost(analog_io[28]),
-	.HASH_LED(analog_io[29]),
-	.IRQ_OUT_toHost(analog_io[30])
-    );
+  decred_controller decred_controller_block (
+
+    // inputs
+    .PLL_INPUT(user_clock2),
+    .EXT_RESET_N_fromHost(io_in[8]),
+    .SCLK_fromHost(io_in[9]),
+    .M1_CLK_IN(io_in[10]),
+    .M1_CLK_SELECT(io_in[11]),
+    .S1_CLK_IN(io_in[12]),
+    .S1_CLK_SELECT(io_in[13]),
+    .SCSN_fromHost(io_in[14]),
+    .MOSI_fromHost(io_in[15]),
+    .MISO_fromClient(io_in[16]),
+    .IRQ_OUT_fromClient(io_in[17]),
+    .ID_fromClient(io_in[18]),
+    .SPI_CLK_RESET_N(io_in[19]),
+
+    // outputs
+    .SCSN_toClient(io_out[20]),
+    .SCLK_toClient(io_out[21]),
+    .MOSI_toClient(io_out[22]),
+    .EXT_RESET_N_toClient(io_out[23]),
+    .ID_toHost(io_out[24]),
+    .CLK_LED(io_out[25]),
+    .MISO_toHost(io_out[26]),
+    .HASH_LED(io_out[27]),
+    .IRQ_OUT_toHost(io_out[28]),
+
+    // hash macro exports
+    .m1_clk_local(m1_clk_local),
+    .HASH_EN(HASH_EN),
+    .MACRO_WR_SELECT(MACRO_WR_SELECT),
+    .DATA_TO_HASH(DATA_TO_HASH),
+    .MACRO_RD_SELECT(MACRO_RD_SELECT),
+    .HASH_ADDR(HASH_ADDR),
+    .THREAD_COUNT(THREAD_COUNT[0]),
+    .DATA_AVAILABLE(DATA_AVAILABLE),
+    .DATA_FROM_HASH(DATA_FROM_HASH)
+  );
+
+decred_hash_macro decred_hash_block0 (
+					  
+      .CLK(m1_clk_local), 
+      .HASH_EN(HASH_EN), 
+      .MACRO_WR_SELECT(MACRO_WR_SELECT[0]),
+      .DATA_TO_HASH(DATA_TO_HASH),
+      .MACRO_RD_SELECT(MACRO_RD_SELECT[0]),
+      .HASH_ADDR(HASH_ADDR),
+      .THREAD_COUNT(THREAD_COUNT[0]),
+      .DATA_AVAILABLE(DATA_AVAILABLE[0]),
+      .DATA_FROM_HASH(DATA_FROM_HASH)
+  );
+
+
 
 endmodule	// user_project_wrapper
 `default_nettype wire

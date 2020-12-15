@@ -4,14 +4,8 @@
 
 module decred_top (
 `ifdef USE_POWER_PINS
-  inout vdda1,	// User area 1 3.3V supply
-  inout vdda2,	// User area 2 3.3V supply
-  inout vssa1,	// User area 1 analog ground
-  inout vssa2,	// User area 2 analog ground
   inout vccd1,	// User area 1 1.8V supply
-  inout vccd2,	// User area 2 1.8v supply
   inout vssd1,	// User area 1 digital ground
-  inout vssd2,	// User area 2 digital ground
 `endif
   input  wire  EXT_RESET_N_fromHost,
   input  wire  SCLK_fromHost,
@@ -45,6 +39,7 @@ module decred_top (
   wire [7: 0]                      DATA_TO_HASH;
   wire [`NUMBER_OF_MACROS - 1: 0]  MACRO_RD_SELECT;
   wire [5: 0]                      HASH_ADDR;
+  wire [3 :0]                      THREAD_COUNT [`NUMBER_OF_MACROS-1:0];
   wire [`NUMBER_OF_MACROS - 1: 0]  DATA_AVAILABLE;
   wire [7: 0]                      DATA_FROM_HASH;
 
@@ -82,6 +77,7 @@ module decred_top (
     .DATA_TO_HASH(DATA_TO_HASH),
     .MACRO_RD_SELECT(MACRO_RD_SELECT),
     .HASH_ADDR(HASH_ADDR),
+    .THREAD_COUNT(THREAD_COUNT[0]),
     .DATA_AVAILABLE(DATA_AVAILABLE),
     .DATA_FROM_HASH(DATA_FROM_HASH)
   );
@@ -96,6 +92,7 @@ module decred_top (
       .DATA_TO_HASH(DATA_TO_HASH),
       .MACRO_RD_SELECT(MACRO_RD_SELECT[i]),
       .HASH_ADDR(HASH_ADDR),
+      .THREAD_COUNT(THREAD_COUNT[i]),
       .DATA_AVAILABLE(DATA_AVAILABLE[i]),
       .DATA_FROM_HASH(DATA_FROM_HASH)
   );

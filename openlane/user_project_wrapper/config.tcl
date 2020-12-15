@@ -32,6 +32,7 @@ set ::env(MAGIC_WRITE_FULL_LEF) 1
 
 set ::env(VERILOG_FILES) "\
 	$script_dir/../../verilog/rtl/defines.v \
+        $script_dir/../../verilog/rtl/decred_top/rtl/src/decred_defines.v \
 	$script_dir/../../verilog/rtl/user_project_wrapper.v"
 
 set ::env(VERILOG_FILES_BLACKBOX) "\
@@ -39,11 +40,9 @@ set ::env(VERILOG_FILES_BLACKBOX) "\
 	$script_dir/../../verilog/rtl/decred_top/rtl/src/*.v"
 
 set ::env(EXTRA_LEFS) "\
-	$script_dir/../../lef/decred_top.lef \
 	$script_dir/../../lef/decred_hash_macro.lef \
 	$script_dir/../../lef/decred_controller.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-	$script_dir/../../gds/decred_top.gds \
 	$script_dir/../../gds/decred_hash_macro.gds \
 	$script_dir/../../gds/decred_controller.gds"
