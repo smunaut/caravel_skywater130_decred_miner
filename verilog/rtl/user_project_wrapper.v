@@ -65,8 +65,10 @@ module user_project_wrapper #(
   /*--------------------------------------*/
   /* Instantiation of decred_top.         */
   /*--------------------------------------*/
-  assign io_oeb[28:20] = {9{1'b0}};
-  assign io_oeb[19:8] = {12{1'b1}};
+  wire zero;
+  wire one;
+  assign io_oeb[28:20] = {9{zero}};
+  assign io_oeb[19:8] = {12{one}};
 
   wire                             m1_clk_local;
   wire                             HASH_EN;
@@ -115,7 +117,11 @@ module user_project_wrapper #(
     .HASH_ADDR(HASH_ADDR),
     .THREAD_COUNT(THREAD_COUNT[0]),
     .DATA_AVAILABLE(DATA_AVAILABLE),
-    .DATA_FROM_HASH(DATA_FROM_HASH)
+    .DATA_FROM_HASH(DATA_FROM_HASH),
+
+     // user_project_wrapper exports
+     .zero(zero),
+     .one(one)
   );
 
 decred_hash_macro decred_hash_block0 (

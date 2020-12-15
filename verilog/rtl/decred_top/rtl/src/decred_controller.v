@@ -48,8 +48,15 @@ module decred_controller (
   output wire [5: 0]                     HASH_ADDR,
   input wire  [3 :0]                     THREAD_COUNT,
   input wire  [`NUMBER_OF_MACROS - 1: 0] DATA_AVAILABLE,
-  input wire  [7: 0]                     DATA_FROM_HASH
+  input wire  [7: 0]                     DATA_FROM_HASH,
+
+  // user_project_wrapper exports
+  output wire zero,
+  output wire one
   );
+
+  assign zero = 1'b0;
+  assign one = 1'b1;
 
   // //////////////////////////////////////////////////////
   // Clocking
