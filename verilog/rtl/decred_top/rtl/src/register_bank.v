@@ -1,19 +1,3 @@
-// Copyright 2020 Matt Aamold, James Aamold
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// Language: Verilog 2001
-
 `timescale 1ns / 1ps
 `include "decred_defines.v"
 
@@ -23,18 +7,27 @@ module regBank #(
 )(
   input  wire                  SPI_CLK,
   input  wire                  RST,
-  input  wire						       M1_CLK,
+  input  wire                  M1_CLK,
   input  wire [ADDR_WIDTH-1:0] address,
   input  wire [DATA_WIDTH-1:0] data_in,
   input  wire                  read_strobe,
   input  wire                  write_strobe,
-  output reg [DATA_WIDTH-1:0]  data_out,
+  output reg  [DATA_WIDTH-1:0] data_out,
 
-  output wire						       hash_clock_reset,
+  output wire                  hash_clock_reset,
   output wire                  LED_out,
-  output wire	[6:0]				     spi_addr,
-  output wire						       ID_out,
-  output wire                  interrupt_out
+  output wire [6:0]            spi_addr,
+  output wire                  ID_out,
+  output wire                  interrupt_out,
+
+  output wire                            HASH_EN,
+  output wire [`NUMBER_OF_MACROS - 1: 0] MACRO_WR_SELECT,
+  output wire [7: 0]                     DATA_TO_HASH,
+  output wire [`NUMBER_OF_MACROS - 1: 0] MACRO_RD_SELECT,
+  output wire [5: 0]                     HASH_ADDR,
+  input wire  [`NUMBER_OF_MACROS - 1: 0] DATA_AVAILABLE,
+  input wire  [7: 0]                     DATA_FROM_HASH
+
   );
 
   localparam REGISTERS = 6;
@@ -45,7 +38,6 @@ module regBank #(
   reg  [DATA_WIDTH-1:0] registers [REGISTERS-1:0];
 
   reg  [7: 0] macro_data_read_rs[1:0];
-  wire [3 :0] threadCount [`NUMBER_OF_MACROS-1:0];
 
   reg [31:0] perf_counter;
   always @(posedge M1_CLK)
@@ -78,7 +70,7 @@ module regBank #(
 		end else
 		  if (address[7:0] == 8'h06) begin
 			// MACRO_INFO register
-			data_out <= ((`NUMBER_OF_MACROS << 4) | (threadCount[0]));
+			data_out <= ((`NUMBER_OF_MACROS << 4) | (6)); // FIXME
 		end else
 		  if (address[7:0] == 8'h07) begin
 			data_out <= perf_counter[7:0];
@@ -130,13 +122,12 @@ module regBank #(
   // resync - signals to hash_macro 
 
   reg [1:0] hash_en_rs;
-  wire      HASH_start;
 
   always @ (posedge M1_CLK)
   begin
     hash_en_rs <= {hash_en_rs[0], registers[3][0]};
   end
-  assign HASH_start = hash_en_rs[1];
+  assign HASH_EN = hash_en_rs[1];
 
   reg		[`NUMBER_OF_MACROS - 1: 0]	wr_select_rs[1:0];
   always @ (posedge M1_CLK)
@@ -144,6 +135,7 @@ module regBank #(
     wr_select_rs[1] <= wr_select_rs[0];
     wr_select_rs[0] <= registers[5][`NUMBER_OF_MACROS - 1: 0];
   end
+  assign MACRO_WR_SELECT = wr_select_rs[1];
 
   reg		[7: 0]	macro_data_write_rs[1:0];
   always @ (posedge M1_CLK)
@@ -151,6 +143,7 @@ module regBank #(
     macro_data_write_rs[1] <= macro_data_write_rs[0];
     macro_data_write_rs[0] <= registers[1];
   end
+  assign DATA_TO_HASH = macro_data_write_rs[1];
 
   reg		[`NUMBER_OF_MACROS - 1: 0]	rd_select_rs[1:0];
   always @ (posedge M1_CLK)
@@ -158,6 +151,7 @@ module regBank #(
     rd_select_rs[1] <= rd_select_rs[0];
     rd_select_rs[0] <= registers[2][`NUMBER_OF_MACROS - 1: 0];
   end
+  assign MACRO_RD_SELECT = rd_select_rs[1];
 
   reg		[5: 0]	macro_addr_rs[1:0];
   always @ (posedge M1_CLK)
@@ -165,6 +159,7 @@ module regBank #(
     macro_addr_rs[1] <= macro_addr_rs[0];
     macro_addr_rs[0] <= registers[0][5:0];
   end
+  assign HASH_ADDR = macro_addr_rs[1];
 
   // //////////////////////////////////////////////////////
   // resync - signals from hash_macro 
@@ -176,6 +171,7 @@ module regBank #(
     macro_rs[1] <= macro_rs[0];
     macro_rs[0] <= macro_interrupts;
   end
+  assign macro_interrupts = DATA_AVAILABLE;
 
   assign interrupt_out = |macro_rs[1];
 
@@ -185,33 +181,30 @@ module regBank #(
     macro_data_read_rs[1] <= macro_data_read_rs[0];
     macro_data_read_rs[0] <= macro_data_readback;
   end
-
+  assign macro_data_readback = DATA_FROM_HASH;
+`ifdef NOT_DEFINE // remove me
   // //////////////////////////////////////////////////////
   // hash macro interface
 
   genvar i;
   for (i = 0; i < `NUMBER_OF_MACROS; i = i + 1) begin: hash_macro_multi_block
-`ifdef USE_NONBLOCKING_HASH_MACRO
     blake256r14_core_nonblock hash_macro (
-`else
-    blake256r14_core_block hash_macro (
-`endif
 					  
 						.CLK(M1_CLK), 
 						.HASH_EN(HASH_start), 
 
 						.MACRO_WR_SELECT(wr_select_rs[1][i]),
-						.DATA_IN(macro_data_write_rs[1]),
+						.DATA_TO_HASH(macro_data_write_rs[1]),
 
 						.MACRO_RD_SELECT(rd_select_rs[1][i]),
-						.ADDR_IN(macro_addr_rs[1]),
+						.HASH_ADDR(macro_addr_rs[1]),
 
 						.THREAD_COUNT(threadCount[i]), // one is used == [0]
 
 						.DATA_AVAILABLE(macro_interrupts[i]),
-						.DATA_OUT(macro_data_readback)
+						.DATA_FROM_HASH(macro_data_readback)
 					  );
   end
-
+`endif
 endmodule // regBank
 

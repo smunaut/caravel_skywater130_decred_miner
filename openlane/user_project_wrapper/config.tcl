@@ -19,7 +19,6 @@ set ::env(FP_IO_HTHICKNESS_MULT) 4
 
 
 set ::env(CLOCK_PORT) "user_clock2"
-#set ::env(CLOCK_NET) "mprj.clk"
 
 set ::env(CLOCK_PERIOD) "15"
 
@@ -40,7 +39,11 @@ set ::env(VERILOG_FILES_BLACKBOX) "\
 	$script_dir/../../verilog/rtl/decred_top/rtl/src/*.v"
 
 set ::env(EXTRA_LEFS) "\
-	$script_dir/../../lef/decred_top.lef"
+	$script_dir/../decred_top/runs/decred_top/results/magic/decred_top.lef \
+	$script_dir/../decred_hash_macro/runs/decred_hash_macro/results/magic/decred_hash_macro.lef \
+	$script_dir/../decred_controller/runs/decred_controller/results/magic/decred_controller.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-	$script_dir/../../gds/decred_top.gds"
+	$script_dir/../decred_top/runs/decred_top/results/magic/decred_top.gds \
+	$script_dir/../decred_hash_macro/runs/decred_hash_macro/results/magic/decred_hash_macro.gds \
+	$script_dir/../decred_controller/runs/decred_controller/results/magic/decred_controller.gds"
