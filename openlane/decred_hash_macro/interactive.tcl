@@ -22,7 +22,7 @@ proc insert_diode {args} {
 
 	# Custom insertion script
 	set ::env(SAVE_DEF) $::env(TMP_DIR)/placement/$::env(DESIGN_NAME).diodes.def
-	try_catch python3 $::env(DESIGN_DIR)/../decred_top/scripts/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/diodes.log
+	try_catch python3 $::env(DESIGN_DIR)/scripts/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/diodes.log
 	set_def $::env(SAVE_DEF)
 
 	# Legalize
