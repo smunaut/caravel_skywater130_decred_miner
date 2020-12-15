@@ -1,6 +1,5 @@
 #!/usr/bin/tclsh
-# Copyright 2020 Efabless Corporation
-# Copyright 2020 Sylvain Munaut
+# Copyright 2020 Matt Aamold, James Aamold
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +40,6 @@ proc run_flow {args} {
 	parse_key_args "run_flow" args arg_values $options flags_map $flags -no_consume
 
 	prep -design $script_dir -tag decred_hash_macro -overwrite
-	set save_path $script_dir/../..
 
 	run_synthesis
 	run_floorplan
@@ -64,20 +62,15 @@ proc run_flow {args} {
 
 	run_magic_spice_export
 
-	if {  [info exists flags_map(-save) ] } {
-		if { ! [info exists arg_values(-save_path)] } {
-			set arg_values(-save_path) ""
-		}
-		save_views 	-lef_path $::env(magic_result_file_tag).lef \
+	save_views 	-lef_path $::env(magic_result_file_tag).lef \
 			-def_path $::env(tritonRoute_result_file_tag).def \
 			-gds_path $::env(magic_result_file_tag).gds \
 			-mag_path $::env(magic_result_file_tag).mag \
 			-mag_path $::env(magic_result_file_tag).lef.mag \
 			-spice_path $::env(magic_result_file_tag).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
-			-save_path $arg_values(-save_path) \
+			-save_path $script_dir/../../ \
 			-tag $::env(RUN_TAG)
-	}
 
 	# Physical verification
 
