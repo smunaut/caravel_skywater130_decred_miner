@@ -41,6 +41,7 @@ proc run_flow {args} {
 	parse_key_args "run_flow" args arg_values $options flags_map $flags -no_consume
 
 	prep -design $script_dir -tag decred_hash_macro -overwrite
+	set save_path $script_dir/../..
 
 	run_synthesis
 	run_floorplan

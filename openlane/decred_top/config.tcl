@@ -21,12 +21,12 @@ set ::env(VERILOG_FILES_BLACKBOX) "\
 	$script_dir/../../verilog/rtl/decred_top/rtl/src/decred_hash_macro.v"
 
 set ::env(EXTRA_LEFS) "\
-	$script_dir/../decred_hash_macro/runs/decred_hash_macro/results/magic/decred_hash_macro.lef \
-	$script_dir/../decred_controller/runs/decred_controller/results/magic/decred_controller.lef"
+	$script_dir/../../lef/decred_hash_macro.lef \
+	$script_dir/../../lef/decred_controller.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-	$script_dir/../decred_hash_macro/runs/decred_hash_macro/results/magic/decred_hash_macro.gds \
-	$script_dir/../decred_controller/runs/decred_controller/results/magic/decred_controller.gds"
+	$script_dir/../../gds/decred_hash_macro.gds \
+	$script_dir/../../gds/decred_controller.gds"
 
 #set ::env(BASE_SDC_FILE) "$script_dir/decred_top.sdc"
 set ::env(MACRO_PLACEMENT_CFG) "$script_dir/macro_placement.cfg"
